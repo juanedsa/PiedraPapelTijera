@@ -39,6 +39,14 @@ var win: Int!
 var scoreUser: Int!
 var scoreMaquina: Int!
 
+let PIEDRA: Int = 1
+let PAPEL: Int = 2
+let TIJERA: Int = 3
+
+let JUGADOR: Int = 1
+let MAQUINA: Int = 2
+let EMPATE: Int = 0
+
 class GameScene: SKScene {
     override func didMoveToView(view: SKView) {
         
@@ -54,6 +62,7 @@ class GameScene: SKScene {
             let touchLocation = touch!.locationInNode(self)
             let touchedNode = self.nodeAtPoint(touchLocation)
             
+            /** Posicion para mostrar la opcion seleccionada por el Jugador */
             var positionNode: CGPoint!
             positionNode = CGPointMake(150, (self.frame.height / 2) + 30)
             
@@ -148,7 +157,6 @@ class GameScene: SKScene {
                                 self.addChild(labelScoreUser)
                             }
                             
-                            
                             if (labelScoreMaquina == nil) {
                                 labelScoreMaquina = SKLabelNode(fontNamed: "Noteworthy-Light")
                                 labelScoreMaquina.text = "\(scoreMaquina)"
@@ -191,44 +199,41 @@ class GameScene: SKScene {
         labelInicial.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame))
         self.addChild(labelInicial)
         
-        win = 0
+        /** Se inicializan los puntajes */
         scoreUser = 0
         scoreMaquina = 0
         
+        /** Variable para controlar quien Gano */
+        // Empate = 0
+        // Jugador Gana = 1
+        // Maquina Gana = 2
+        win = EMPATE
+        
+        /** Se inicializan  los sonidos del Juego */
         soundWin = SKAction.playSoundFileNamed("win.mp3", waitForCompletion: true)
         soundFall = SKAction.playSoundFileNamed("fall.mp3", waitForCompletion: true)
         
     }
     
     func quienGana() {
-        // 1 Piedra
-        // 2 Papel
-        // 3 Tijera
         
-        if (selUsuario == 1 && selMaquina == 2) {
-            print("Perdiste!!")
-            win = 2
-        } else if (selUsuario == 1 && selMaquina == 3) {
-            print("Ganaste !!")
-            win = 1
-        } else if (selUsuario == 2 && selMaquina == 3) {
-            print("Perdiste !!")
-            win = 2
-        } else if (selUsuario == 2 && selMaquina == 1) {
-            print("Ganaste !!!")
-            win = 1
-        } else if (selUsuario == 3 && selMaquina == 1) {
-            print("Perdiste !!!")
-            win = 2
-        } else if (selUsuario == 3 && selMaquina == 2) {
-            print("Ganste !!")
-            win = 1
+        if (selUsuario == PIEDRA && selMaquina == PAPEL) {
+            win = MAQUINA
+        } else if (selUsuario == PIEDRA && selMaquina == TIJERA) {
+            win = JUGADOR
+        } else if (selUsuario == PAPEL && selMaquina == TIJERA) {
+            win = MAQUINA
+        } else if (selUsuario == PAPEL && selMaquina == PIEDRA) {
+            win = JUGADOR
+        } else if (selUsuario == TIJERA && selMaquina == PIEDRA) {
+            win = MAQUINA
+        } else if (selUsuario == TIJERA && selMaquina == PAPEL) {
+            win = JUGADOR
         } else if (selUsuario == selMaquina) {
-            print("Empate")
-            win = 0
+            win = EMPATE
         }
         
-        if (win == 1) {
+        if (win == JUGADOR) {
             labelResultado = SKLabelNode(fontNamed: "Noteworthy-Light")
             labelResultado.text = "Ganaste !!!"
             labelResultado.fontSize = 50
@@ -241,7 +246,7 @@ class GameScene: SKScene {
             scoreUser = scoreUser + 1
             labelScoreUser.text = "\(scoreUser)"
             
-        } else if (win == 2) {
+        } else if (win == MAQUINA) {
             labelResultado = SKLabelNode(fontNamed: "Noteworthy-Light")
             labelResultado.text = "Perdiste !!!"
             labelResultado.fontSize = 50
@@ -253,7 +258,7 @@ class GameScene: SKScene {
             
             scoreMaquina = scoreMaquina + 1
             labelScoreMaquina.text = "\(scoreMaquina)"
-        } else if (win == 0) {
+        } else if (win == EMPATE) {
             labelResultado = SKLabelNode(fontNamed: "Noteworthy-Light")
             labelResultado.text = "Empate !!!"
             labelResultado.fontSize = 50
@@ -270,11 +275,9 @@ class GameScene: SKScene {
         labelInicial.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame) - 50)
         self.addChild(labelInicial)
         
-        
-        
-        
     }
     
+    /** Se obtiene la seleccion del usuario */
     func juegoUsuario(imageNameNode imageNameNode:String, postitionNode:CGPoint) {
         
         nodeSelected = SKSpriteNode(imageNamed: imageNameNode)
@@ -284,6 +287,7 @@ class GameScene: SKScene {
         
     }
     
+    /** Obtener el Juego de la maquina */
     func juegoMaquina() {
         
         numeroAleatorio = crearNumerosAleatorios(min: 1, max: 3)
@@ -291,7 +295,7 @@ class GameScene: SKScene {
         var positionNode: CGPoint!
         positionNode = CGPointMake(self.frame.width - 150, (self.frame.height / 2) + 30)
         
-        if (numeroAleatorio == 1){
+        if (numeroAleatorio == PIEDRA){
             // Piedra
             nodeMaquina = SKSpriteNode(imageNamed: "piedra")
             nodeMaquina.position = positionNode
@@ -299,14 +303,14 @@ class GameScene: SKScene {
             self.addChild(nodeMaquina)
             selMaquina = 1
             
-        } else if (numeroAleatorio == 2){
+        } else if (numeroAleatorio == PAPEL){
             // Papel
             nodeMaquina = SKSpriteNode(imageNamed: "papel")
             nodeMaquina.position = positionNode
             nodeMaquina.size = CGSize(width: 250, height: 250)
             self.addChild(nodeMaquina)
             selMaquina = 2
-        } else if (numeroAleatorio == 3) {
+        } else if (numeroAleatorio == TIJERA) {
             // Tijera
             nodeMaquina = SKSpriteNode(imageNamed: "tijera")
             nodeMaquina.position = positionNode
@@ -345,6 +349,8 @@ class GameScene: SKScene {
         }
     }
     
+    
+    /** Funcion encargada de crear un numero aleatorio */
     func crearNumerosAleatorios(min min:Int, max:Int ) -> Int {
         return Int(arc4random_uniform(UInt32((max - min) + min))) + min
     }
